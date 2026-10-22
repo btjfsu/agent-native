@@ -95,18 +95,17 @@ export const CHATGPT_DIRECTORY_PROFILE = {
       const deckId = id(args.deckId, record(result).deckId);
       return deckId ? deckWidgetTarget(deckId) : null;
     },
-    "clone-context-slide": (args: Record<string, unknown>, result: unknown) => {
-      const deckId = id(record(result).deckId, args.deckId);
+    "clone-context-slide": (
+      _args: Record<string, unknown>,
+      result: unknown,
+    ) => {
+      const deckId = id(record(result).deckId);
       const slideNumber = record(result).slideNumber;
-      return deckId
-        ? deckWidgetTarget(
-            deckId,
-            typeof slideNumber === "number" &&
-              Number.isSafeInteger(slideNumber) &&
-              slideNumber > 0
-              ? slideNumber
-              : undefined,
-          )
+      return deckId &&
+        typeof slideNumber === "number" &&
+        Number.isSafeInteger(slideNumber) &&
+        slideNumber > 0
+        ? deckWidgetTarget(deckId, slideNumber)
         : null;
     },
   },
