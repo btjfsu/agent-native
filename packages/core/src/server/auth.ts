@@ -3991,6 +3991,14 @@ function createAuthGuardFn(
       return;
     }
 
+    // MCP action review page. Like /open, it reads the browser session itself
+    // and serves the login form at the same URL when signed out, so signing in
+    // returns to the review. Its POST re-checks the session and the grant's
+    // owner and organization.
+    if (/^\/_agent-native\/mcp\/approvals\/[^/]+$/.test(p)) {
+      return;
+    }
+
     if (/^\/_agent-native\/integrations\/[^/]+\/webhook$/.test(p)) {
       return;
     }
