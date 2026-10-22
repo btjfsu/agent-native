@@ -232,9 +232,15 @@ describe("Slides ChatGPT directory widget share grant", () => {
     expect(widgetReadActionArguments["list-resource-shares"]).toEqual(resource);
     expect(Object.keys(widgetReadActionArguments).sort()).toEqual([
       "get-deck",
+      "get-deck-design-tokens",
+      "get-slide-render",
+      "get-slide-source",
       "list-resource-shares",
     ]);
-    expect(widgetReadAuthenticatedActions).toEqual(["list-resource-shares"]);
+    expect(widgetReadAuthenticatedActions).toEqual([
+      "list-resource-shares",
+      "get-slide-render",
+    ]);
     expect(widgetReadOnlyActions).toEqual(["get-deck"]);
 
     expect(widgetWriteActionArguments["share-resource"]).toEqual({
@@ -270,7 +276,7 @@ describe("Slides ChatGPT directory widget share grant", () => {
     });
   });
 
-  it("resolves every resource rule from a target key and every target action from the allowlist", () => {
+  it("resolves deck-level resource rules from target keys and target actions from the allowlist", () => {
     const { widgetTargets, widgetWriteActionArguments } =
       CHATGPT_DIRECTORY_PROFILE;
     const targets = [
@@ -278,7 +284,9 @@ describe("Slides ChatGPT directory widget share grant", () => {
       widgetTargets["add-slide"]({ deckId: "deck-a" }, {}),
     ];
     const rules = [
-      ...Object.values(CHATGPT_DIRECTORY_PROFILE.widgetReadActionArguments),
+      ...Object.values(
+        CHATGPT_DIRECTORY_PROFILE.widgetReadActionArguments,
+      ).filter((map) => !Object.values(map).includes("slideId")),
       ...Object.values(widgetWriteActionArguments),
     ].flatMap((argumentMap) => Object.values(argumentMap));
 

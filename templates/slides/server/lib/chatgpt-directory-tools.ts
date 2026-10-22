@@ -42,9 +42,9 @@ const DECK_WIDGET_WRITE_ACTIONS = [
   "set-resource-visibility",
 ] as const;
 
-function deckWidgetTarget(deckId: string) {
+function deckWidgetTarget(deckId: string, slideNumber?: number) {
   return {
-    targetPath: `/deck/${encodeURIComponent(deckId)}`,
+    targetPath: `/deck/${encodeURIComponent(deckId)}${slideNumber ? `?slide=${slideNumber}` : ""}`,
     resourceIds: { deckId, resourceType: "deck" },
     writeActions: DECK_WIDGET_WRITE_ACTIONS,
   };
@@ -94,6 +94,20 @@ export const CHATGPT_DIRECTORY_PROFILE = {
     "add-slide": (args: Record<string, unknown>, result: unknown) => {
       const deckId = id(args.deckId, record(result).deckId);
       return deckId ? deckWidgetTarget(deckId) : null;
+    },
+    "clone-context-slide": (args: Record<string, unknown>, result: unknown) => {
+      const deckId = id(record(result).deckId, args.deckId);
+      const slideNumber = record(result).slideNumber;
+      return deckId
+        ? deckWidgetTarget(
+            deckId,
+            typeof slideNumber === "number" &&
+              Number.isSafeInteger(slideNumber) &&
+              slideNumber > 0
+              ? slideNumber
+              : undefined,
+          )
+        : null;
     },
   },
   widgetReadActionArguments: {

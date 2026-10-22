@@ -47,9 +47,9 @@ const DECK_WIDGET_WRITE_ACTIONS = [
   "set-resource-visibility",
 ] as const;
 
-function deckWidgetTarget(deckId: string) {
+function deckWidgetTarget(deckId: string, slideNumber?: number) {
   return {
-    targetPath: `/deck/${encodeURIComponent(deckId)}`,
+    targetPath: `/deck/${encodeURIComponent(deckId)}${slideNumber ? `?slide=${slideNumber}` : ""}`,
     resourceIds: { deckId, resourceType: "deck" },
     writeActions: DECK_WIDGET_WRITE_ACTIONS,
   };
@@ -100,10 +100,37 @@ export const CHATGPT_DIRECTORY_PROFILE = {
       const deckId = id(args.deckId, record(result).deckId);
       return deckId ? deckWidgetTarget(deckId) : null;
     },
+    "clone-context-slide": (args: Record<string, unknown>, result: unknown) => {
+      const deckId = id(record(result).deckId, args.deckId);
+      const slideId = id(record(result).slideId);
+      const slideNumber = record(result).slideNumber;
+      return deckId &&
+        slideId &&
+        typeof slideNumber === "number" &&
+        Number.isSafeInteger(slideNumber) &&
+        slideNumber > 0
+        ? {
+            ...deckWidgetTarget(deckId, slideNumber),
+            resourceIds: { deckId, slideId, resourceType: "deck" },
+          }
+        : null;
+    },
   },
   widgetReadActionArguments: {
     // The ticketed get-deck path normalizes duplicate IDs in memory only.
-    "get-deck": { id: "deckId", deckId: "deckId" },
+    "get-deck": {
+      id: "deckId",
+      deckId: "deckId",
+      compact: { type: "actionSchema" as const },
+    },
+    "get-deck-design-tokens": { deckId: "deckId" },
+    "get-slide-source": { deckId: "deckId", slideId: "slideId" },
+    "get-slide-render": {
+      deckId: "deckId",
+      slideId: "slideId",
+      expectedRevision: { type: "actionSchema" as const },
+      expectedSourceHash: { type: "actionSchema" as const },
+    },
     "list-resource-shares": {
       resourceType: "resourceType",
       resourceId: "deckId",
@@ -138,7 +165,9 @@ export const CHATGPT_DIRECTORY_PROFILE = {
     },
   },
   widgetReadOnlyActions: ["get-deck"],
-  widgetReadAuthenticatedActions: ["list-resource-shares"],
+  widgetReadAuthenticatedActions: ["list-resource-shares", "get-slide-render"],
+  widgetReadPrivateActions: ["get-deck-design-tokens"],
+  widgetReadPublicActions: ["get-slide-render"],
   keyToolNames: [
     "control-presenter",
     "list-decks",
