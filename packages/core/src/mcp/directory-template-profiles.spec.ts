@@ -223,10 +223,6 @@ describe("ChatGPT directory template profiles", () => {
         ),
       };
       expect(() => validateMcpDirectoryProfile(config)).not.toThrow();
-      if (appId === "slides") {
-        expect(actions["get-deck-access-status"]?.agentTool).toBe(false);
-        expect(productionActions).not.toHaveProperty("get-deck-access-status");
-      }
       expect(() =>
         validateMcpDirectoryProfile({
           ...config,
@@ -1568,49 +1564,6 @@ describe("ChatGPT directory template profiles", () => {
       },
     };
     expect(() => validateMcpDirectoryProfile(publicReadConfig)).not.toThrow();
-    const hiddenPublicReadConfig = {
-      ...publicReadConfig,
-      actions: config.actions,
-      widgetReadActions: selectMcpDirectoryWidgetReadActions(
-        publicReadConfig.directoryProfile,
-        { "get-design": { ...publicReadAction, agentTool: false } },
-      ),
-    };
-    expect(() =>
-      validateMcpDirectoryProfile(hiddenPublicReadConfig),
-    ).not.toThrow();
-    for (const invalid of [
-      { readOnly: false },
-      { requiresAuth: true },
-      { http: { method: "POST" as const } },
-    ]) {
-      expect(() =>
-        validateMcpDirectoryProfile({
-          ...hiddenPublicReadConfig,
-          widgetReadActions: {
-            "get-design": { ...publicReadAction, agentTool: false, ...invalid },
-          },
-        }),
-      ).toThrow(/public GET action/);
-    }
-    expect(() =>
-      validateMcpDirectoryProfile({
-        ...hiddenPublicReadConfig,
-        externalAgents: { denyActions: ["get-design"] },
-      }),
-    ).toThrow(/externalAgents.denyActions/);
-    expect(() =>
-      validateMcpDirectoryProfile({
-        ...hiddenPublicReadConfig,
-        directoryProfile: {
-          ...publicReadConfig.directoryProfile,
-          widgetReadActionArguments: {
-            ...config.directoryProfile.widgetReadActionArguments,
-            "get-design": {},
-          },
-        },
-      }),
-    ).toThrow(/valid resource arguments/);
     expect(() =>
       validateMcpDirectoryProfile({
         ...publicReadConfig,
@@ -2384,7 +2337,6 @@ describe("Slides widget share grant", () => {
       };
 
       expect(Object.keys(config.widgetReadActions ?? {})).toEqual([
-        "get-deck-access-status",
         "list-resource-shares",
       ]);
       expect(Object.keys(config.widgetWriteActions ?? {}).sort()).toEqual([
@@ -2418,11 +2370,7 @@ describe("Slides widget share grant", () => {
           },
         }),
       ).toThrow(/exact resource ID binding/);
-      for (const denied of [
-        "get-deck-access-status",
-        "list-resource-shares",
-        "unshare-resource",
-      ]) {
+      for (const denied of ["list-resource-shares", "unshare-resource"]) {
         expect(() =>
           validateMcpDirectoryProfile({
             ...config,

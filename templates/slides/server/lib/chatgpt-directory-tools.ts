@@ -42,9 +42,9 @@ const DECK_WIDGET_WRITE_ACTIONS = [
   "set-resource-visibility",
 ] as const;
 
-function deckWidgetTarget(deckId: string, slideNumber?: number) {
+function deckWidgetTarget(deckId: string) {
   return {
-    targetPath: `/deck/${encodeURIComponent(deckId)}${slideNumber ? `?slide=${slideNumber}` : ""}`,
+    targetPath: `/deck/${encodeURIComponent(deckId)}`,
     resourceIds: { deckId, resourceType: "deck" },
     writeActions: DECK_WIDGET_WRITE_ACTIONS,
   };
@@ -95,24 +95,10 @@ export const CHATGPT_DIRECTORY_PROFILE = {
       const deckId = id(args.deckId, record(result).deckId);
       return deckId ? deckWidgetTarget(deckId) : null;
     },
-    "clone-context-slide": (
-      _args: Record<string, unknown>,
-      result: unknown,
-    ) => {
-      const deckId = id(record(result).deckId);
-      const slideNumber = record(result).slideNumber;
-      return deckId &&
-        typeof slideNumber === "number" &&
-        Number.isSafeInteger(slideNumber) &&
-        slideNumber > 0
-        ? deckWidgetTarget(deckId, slideNumber)
-        : null;
-    },
   },
   widgetReadActionArguments: {
     // The ticketed get-deck path normalizes duplicate IDs in memory only.
     "get-deck": { id: "deckId", deckId: "deckId" },
-    "get-deck-access-status": { deckId: "deckId" },
     "list-resource-shares": {
       resourceType: "resourceType",
       resourceId: "deckId",
@@ -147,7 +133,6 @@ export const CHATGPT_DIRECTORY_PROFILE = {
     },
   },
   widgetReadOnlyActions: ["get-deck"],
-  widgetReadPublicActions: ["get-deck-access-status"],
   widgetReadAuthenticatedActions: ["list-resource-shares"],
   keyToolNames: [
     "list-decks",
