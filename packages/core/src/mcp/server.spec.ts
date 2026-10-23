@@ -901,6 +901,7 @@ async function directoryWidgetTemplateConfig(
   const actionNames = [
     ...new Set([
       ...profile.connectorCatalog,
+      ...Object.keys(profile.widgetTargets ?? {}),
       ...Object.keys(profile.widgetReadActionArguments ?? {}),
       ...Object.keys(profile.widgetWriteActionArguments ?? {}),
     ]),
@@ -1235,6 +1236,7 @@ describe("handleMcpRequest — web-standard runtime fallback (no Node req/res)",
         const actionNames = [
           ...new Set([
             ...profile.connectorCatalog,
+            ...Object.keys(profile.widgetTargets ?? {}),
             ...Object.keys(profile.widgetReadActionArguments ?? {}),
             ...Object.keys(profile.widgetWriteActionArguments ?? {}),
           ]),
@@ -3351,6 +3353,15 @@ describe("handleMcpRequest — web-standard runtime fallback (no Node req/res)",
     const shareActions = loadActionsFromStaticRegistry(
       sharedDirectoryActionsByApp.slides!,
     );
+    const getDeckAccessStatus = defineAction({
+      description: "Read one deck's access status.",
+      schema: z.object({ deckId: z.string() }),
+      readOnly: true,
+      requiresAuth: false,
+      agentTool: false,
+      http: { method: "GET" },
+      run: async () => ({ hasAccess: true }),
+    });
     const authorizeWidgetWrite = vi.fn(async () => true);
     const directoryProfile = {
       connectorCatalog: ["create-deck", "get-deck"],
@@ -3362,6 +3373,7 @@ describe("handleMcpRequest — web-standard runtime fallback (no Node req/res)",
       widgetReadActionArguments:
         slidesDirectoryProfile.widgetReadActionArguments,
       widgetReadOnlyActions: slidesDirectoryProfile.widgetReadOnlyActions,
+      widgetReadPublicActions: slidesDirectoryProfile.widgetReadPublicActions,
       widgetReadAuthenticatedActions:
         slidesDirectoryProfile.widgetReadAuthenticatedActions,
       widgetWriteActionArguments:
@@ -3374,10 +3386,10 @@ describe("handleMcpRequest — web-standard runtime fallback (no Node req/res)",
       directoryProfile,
       widgetDomain: "https://slides.agent-native.com",
       actions: { "create-deck": createDeck, "get-deck": getDeck },
-      widgetReadActions: selectMcpDirectoryWidgetReadActions(
-        directoryProfile,
-        shareActions,
-      ),
+      widgetReadActions: selectMcpDirectoryWidgetReadActions(directoryProfile, {
+        ...shareActions,
+        "get-deck-access-status": getDeckAccessStatus,
+      }),
       widgetWriteActions: selectMcpDirectoryWidgetWriteActions(
         directoryProfile,
         { ...shareActions, "patch-deck": patchDeck },
