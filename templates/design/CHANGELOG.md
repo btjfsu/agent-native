@@ -3,14 +3,34 @@
 All notable user-facing changes to Design are documented here. Open it any time
 from the command menu (Cmd+K → "What's new") or from Settings.
 
+## 2026-10-23
+
+### Improved
+
+- HTML Motion edits preserve interactive Alpine visibility state
+
+### Fixed
+
+- Motion editing works again on designs that load Tailwind and Alpine from the CDN.
+
 ## 2026-10-22
 
 ### Added
 
+- Export compatible HTML frames for HubSpot email, or ask the agent to adapt existing content into a new email frame while preserving the original.
+- HubSpot conversion exports can verify that original link destinations are preserved.
+- Preview HubSpot emails with sample recipient names and button destinations without changing saved content.
 - Prototype links can play code-authored screen transitions.
+
+### Improved
+
+- Independent content and mobile layout reviews are available on request for HubSpot emails.
 
 ### Fixed
 
+- Frames using Hug height expand to show their full content on the canvas.
+- Screenshot previews use local Chromium when available for faster, more reliable rendering.
+- Verification and export requests finish without requiring unnecessary design changes.
 - Collapsed shader layers no longer interrupt other shaders on the canvas
 - Shader fills keep rendering when other screen content cannot be captured
 - Shader fills and effects render correctly on canvas elements created or updated in the editor.

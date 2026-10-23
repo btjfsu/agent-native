@@ -51,6 +51,29 @@
   - @agent-native/toolkit@0.18.0
   - @agent-native/recap-cli@0.5.21
 
+## 0.219.1
+
+### Patch Changes
+
+- ddd3bd1: An agent run ended by a SQL write now sends its one `agent_run_terminal` too: runs the server reaps (`reaped: true`), stopped runs (`status: "aborted"`), runs the reaper repairs from their event log, and runs that fail or are released before their worker starts. The event carries `turn_id` and the run's user, except an anonymous visitor's. An aborted run is reported by the SQL write that stopped it, so aborted events no longer carry `model`, `engine` or `attempt_count`. `run_started` also carries `turn_id`, and so do `$ai_trace` and `$ai_generation` for agent chat runs.
+
+  The browser now sends `agent_turn_submitted` once per agent request it submits and the server accepts (not yet for a queued message the server's inbox drain admits), with the same `turn_id`, `initiator` (`user`, `app`, or `system`) and `surface`; continuations repeat the turn's `turn_id` as `system`. `agent_run_outcome` now carries `turn_id`, except for a replay whose turn the server did not name. See the tracking skill for the full contract.
+
+- 4472c54: Allow bounded, abortable waits for agent task status and results, and keep volatile read-only task checks fresh throughout an agent turn.
+
+  Save sub-agent results within their active task transaction while retaining execution lease checks and atomic rollback.
+
+- Release all public npm packages with a patch version bump.
+- ce19f80: Correct the MCP Apps host list in the external-agents skill reference and docs: Claude Desktop Code renders inline apps; the Claude Code terminal and Cowork use deep links. Document Cowork’s shared-connector limitation.
+- 4fbf4df: Add `rebaseSuggestion` to `@agent-native/core/review`. It moves a pending suggestion onto a new base revision, with operations that make the same change there, for example after the resource was rewritten into an equivalent form. The move is recorded as an amendment, so the suggestion's revision changes and anyone holding the old revision has to refresh before deciding.
+- cd40cd1: Stop route chunk recovery from navigating transplanted MCP App embeds (Claude) to the host's origin, which the host blocks; report the failure instead, including failures caught before the client bundle loads.
+- 4fbf4df: A suggestion adapter's `coordinateDecision` can now run the decision inside its own transaction by passing `{ transaction }` as the second argument to `run`, so the decision commits or rolls back with the adapter's write. A decision that replays an earlier one returns without calling `apply`. A proposal decision also passes `proposalMemberIds`, the members it decides in the order it applies them. An accepted decision now always returns the decided suggestion; it fails loudly if the suggestion disappears.
+- fee0487: Confirm the persisted terminal status after an ambiguous status write.
+- 766fa43: Verify terminal status and reason after an ambiguous status write.
+- Updated dependencies
+  - @agent-native/agentkit@0.219.1
+  - @agent-native/recap-cli@0.5.89
+
 ## 0.219.0
 
 ### Patch Changes
@@ -4368,11 +4391,5 @@ delete(no approval)]` in one message, the human saw an approval card for the
   `startRun` call site, reports `"background"` instead of inheriting the
   foreground label from a flag that only describes self-chaining. Passing it cannot disturb the runner's self-claim: `insertRun` is
   `ON CONFLICT DO NOTHING`, so `startRun`'s insert is a no-op for a claimed row.
-
-## 0.168.13
-
-### Patch Changes
-
-- f2f60b9: Move the environment badge to the bottom-left, show a truthful dev badge during configured local development, raise Dispatch controls above it, and give default notifications enough clearance to avoid overlap.
 
 For the full list of releases, see the [changelog archive](./changelog/archive/CHANGELOG.md).

@@ -1,5 +1,15 @@
 # @agent-native/scheduling
 
+## 0.2.45
+
+### Patch Changes
+
+- Release all public npm packages with a patch version bump.
+- Updated dependencies [ddd3bd1]
+- Updated dependencies [4ea7d64]
+- Updated dependencies
+  - @agent-native/toolkit@0.219.1
+
 ## 0.2.44
 
 ### Patch Changes
@@ -1144,14 +1154,5 @@
 
 - Updated dependencies [680b1eb]
   - @agent-native/toolkit@0.4.4
-
-## 0.1.21
-
-### Patch Changes
-
-- 823d635: Upgrade the workspace toolchain to TypeScript 7 (`tsc`) with a side-by-side TypeScript 6 API package for tools that still need programmatic access. Replace `@typescript/native-preview` / `tsgo` with the stable `typescript` 7 release.
-- Updated dependencies [823d635]
-- Updated dependencies [823d635]
-  - @agent-native/toolkit@0.4.3
 
 For the full list of releases, see the [changelog archive](./changelog/archive/CHANGELOG.md).
